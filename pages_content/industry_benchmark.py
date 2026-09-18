@@ -30,7 +30,7 @@ def render(ctx):
     sector_rank = int(ctx.stock_info.get('sector_rank', 1))
     overall_rank = int(ctx.stock_info.get('overall_rank', 1))
     n_all = len(ctx.scores_df)
-    pct_in_sector = round((1 - (sector_rank - 1) / max(n_sector, 1)) * 100)
+    pct_in_sector = round((sector_rank / n_sector) * 100)
 
     st.markdown(f"""
     <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:15px; border-bottom:1px solid #1E293B; padding-bottom:10px;">
