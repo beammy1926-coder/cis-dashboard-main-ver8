@@ -55,7 +55,7 @@ def render(ctx):
         else:
             position_label = "INDUSTRY LEADER" if sector_rank == 1 else ("STRONG COMPETITOR" if sector_rank <= max(2, n_sector // 2) else "LAGGING PEER")
             pos_stars = 5 if sector_rank == 1 else (4 if sector_rank <= max(2, n_sector // 2) else 2)
-        st.markdown(f"""<div style="background-color:#151E2F; border:1px solid #1E293B; border-radius:8px; padding:14px; height:225px; display:flex; flex-direction:column; justify-content:space-between;">
+         st.markdown(f"""<div style="background-color:#151E2F; border:1px solid #1E293B; border-radius:8px; padding:14px; height:360px; display:flex; flex-direction:column; justify-content:space-between;">
     <div style="font-size:14.5px; color:#94A3B8; font-weight:bold; margin-bottom:8px;">STRATEGIC INVESTMENT POSITION</div>
     <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
     <div style="background:rgba(168,85,247,0.15); border:1px solid #A855F7; border-radius:50%; width:50px; height:50px; display:flex; align-items:center; justify-content:center; font-size:21px;">🏆</div>
@@ -66,7 +66,7 @@ def render(ctx):
 
     with r1_c2:
         pct_overall = round((overall_rank / max(n_all, 1)) * 100)
-        st.markdown(f"""<div style="background-color:#151E2F; border:1px solid #1E293B; border-radius:8px; padding:14px; height:225px; text-align:center; display:flex; flex-direction:column; justify-content:space-between;">
+        st.markdown(f"""<div style="background-color:#151E2F; border:1px solid #1E293B; border-radius:8px; padding:14px; height:360px; text-align:center; display:flex; flex-direction:column; justify-content:space-between;">
     <div style="font-size:14.5px; color:#94A3B8; font-weight:bold;">RANKING</div>
     <div style="border-bottom:1px solid #1E293B; padding-bottom:8px;">
     <div style="font-size:12px; color:#64748B;">ในกลุ่ม</div>
@@ -118,19 +118,23 @@ def render(ctx):
     <div style="color:#94A3B8; font-size:12px;">{label}</div><div style="color:{color}; font-size:15px; font-weight:bold; margin:2px 0;">Top {max(pct,1)}%</div>
     <div style="color:{color}; font-size:12px;">{tier}</div></div>"""
 
-        st.markdown(f"""<div style="background-color:#151E2F; border:1px solid #1E293B; border-radius:8px; padding:14px;">
+        st.markdown(f"""<div style="background-color:#151E2F; border:1px solid #1E293B; border-radius:8px; padding:14px; height:360px; display:flex; flex-direction:column; justify-content:space-between;">
+    <div>
     <div style="font-size:14.5px; color:#94A3B8; font-weight:bold; margin-bottom:10px;">DIMENSION PERCENTILE RANK</div>
     <div style="font-size:12.5px; color:#CBD5E1; margin-bottom:6px;">เปรียบเทียบกับกลุ่มอุตสาหกรรม {ctx.stock_info.get('sector','-')} ({n_sector} หุ้น)</div>
     <div style="display:grid; grid-template-columns: repeat(6, 1fr); gap:6px; text-align:center; margin-bottom:16px;">
     {''.join([dim_pct_card(l, p, c) for l, p, c in dims_sector])}
     </div>
+    </div>
     <div style="border-top:1px dashed #334155; margin-bottom:12px;"></div>
+    <div>
     <div style="font-size:12.5px; color:#CBD5E1; margin-bottom:6px;">เปรียบเทียบกับหุ้นทั้ง {n_all} ตัว</div>
     <div style="display:grid; grid-template-columns: repeat(6, 1fr); gap:6px; text-align:center;">
     {''.join([dim_pct_card(l, p, c) for l, p, c in dims_market])}
     </div>
+    </div>
     </div>""", unsafe_allow_html=True)
-
+        
     st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
     r2_c1, r2_c2, r2_c3 = st.columns([2.0, 1.0, 1.1])
 
