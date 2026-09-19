@@ -87,7 +87,7 @@ def render(ctx):
     </div>
     </div>""", unsafe_allow_html=True)
         
-    with r1_c3:
+        with r1_c3:
         def calc_pct(df, col):
             s = df[col].rank(pct=True)
             match = df['ticker'] == ctx.selected_ticker
@@ -116,6 +116,12 @@ def render(ctx):
 
         dims_market = build_dims(ctx.scores_df)
 
+        def dim_pct_card(label, pct, color):
+            tier = "Excellent" if pct <= 20 else ("Good" if pct <= 45 else ("Fair" if pct <= 70 else "Weak"))
+            return f"""<div style="background:#0F172A; padding:6px 2px; border-radius:6px; border:1px solid #1E293B;">
+    <div style="color:#94A3B8; font-size:12px;">{label}</div><div style="color:{color}; font-size:15px; font-weight:bold; margin:2px 0;">Top {max(pct,1)}%</div>
+    <div style="color:{color}; font-size:12px;">{tier}</div></div>"""
+
         if single_member_sector:
             sector_section = f"""<div style="background:rgba(100,116,139,0.08); border:1px dashed #334155; border-radius:8px; padding:14px; text-align:center; margin-bottom:16px;">
     <div style="color:#94A3B8; font-size:13px; line-height:1.4;">กลุ่ม <b>{ctx.stock_info.get('sector','-')}</b> มีเพียง 1 หุ้น จึงไม่สามารถเปรียบเทียบ percentile ภายในกลุ่มได้อย่างมีความหมาย</div>
@@ -126,12 +132,6 @@ def render(ctx):
     <div style="display:grid; grid-template-columns: repeat(6, 1fr); gap:6px; text-align:center; margin-bottom:16px;">
     {''.join([dim_pct_card(l, p, c) for l, p, c in dims_sector])}
     </div>"""
-
-        def dim_pct_card(label, pct, color):
-            tier = "Excellent" if pct <= 20 else ("Good" if pct <= 45 else ("Fair" if pct <= 70 else "Weak"))
-            return f"""<div style="background:#0F172A; padding:6px 2px; border-radius:6px; border:1px solid #1E293B;">
-    <div style="color:#94A3B8; font-size:12px;">{label}</div><div style="color:{color}; font-size:15px; font-weight:bold; margin:2px 0;">Top {max(pct,1)}%</div>
-    <div style="color:{color}; font-size:12px;">{tier}</div></div>"""
 
         st.markdown(f"""<div style="background-color:#151E2F; border:1px solid #1E293B; border-radius:8px; padding:14px; height:360px; display:flex; flex-direction:column; justify-content:space-between;">
     <div>
