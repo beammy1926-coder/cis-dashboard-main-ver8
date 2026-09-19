@@ -86,6 +86,7 @@ def render(ctx):
     <span style="display:inline-block; margin-top:6px; background-color:rgba(56,189,248,0.15); color:#38BDF8; font-size:14px; font-weight:bold; padding:3px 14px; border-radius:8px;">Top {pct_overall}%</span>
     </div>
     </div>""", unsafe_allow_html=True)
+        
     with r1_c3:
         def calc_pct(df, col):
             s = df[col].rank(pct=True)
@@ -113,8 +114,18 @@ def render(ctx):
                 result.append((label, pct, color))
             return result
 
-        dims_sector = build_dims(ctx.sector_peers)
         dims_market = build_dims(ctx.scores_df)
+
+        if single_member_sector:
+            sector_section = f"""<div style="background:rgba(100,116,139,0.08); border:1px dashed #334155; border-radius:8px; padding:14px; text-align:center; margin-bottom:16px;">
+    <div style="color:#94A3B8; font-size:13px; line-height:1.4;">กลุ่ม <b>{ctx.stock_info.get('sector','-')}</b> มีเพียง 1 หุ้น จึงไม่สามารถเปรียบเทียบ percentile ภายในกลุ่มได้อย่างมีความหมาย</div>
+    </div>"""
+        else:
+            dims_sector = build_dims(ctx.sector_peers)
+            sector_section = f"""<div style="font-size:12.5px; color:#CBD5E1; margin-bottom:6px;">เปรียบเทียบกับกลุ่มอุตสาหกรรม {ctx.stock_info.get('sector','-')} ({n_sector} หุ้น)</div>
+    <div style="display:grid; grid-template-columns: repeat(6, 1fr); gap:6px; text-align:center; margin-bottom:16px;">
+    {''.join([dim_pct_card(l, p, c) for l, p, c in dims_sector])}
+    </div>"""
 
         def dim_pct_card(label, pct, color):
             tier = "Excellent" if pct <= 20 else ("Good" if pct <= 45 else ("Fair" if pct <= 70 else "Weak"))
@@ -125,10 +136,7 @@ def render(ctx):
         st.markdown(f"""<div style="background-color:#151E2F; border:1px solid #1E293B; border-radius:8px; padding:14px; height:360px; display:flex; flex-direction:column; justify-content:space-between;">
     <div>
     <div style="font-size:14.5px; color:#94A3B8; font-weight:bold; margin-bottom:10px;">DIMENSION PERCENTILE RANK</div>
-    <div style="font-size:12.5px; color:#CBD5E1; margin-bottom:6px;">เปรียบเทียบกับกลุ่มอุตสาหกรรม {ctx.stock_info.get('sector','-')} ({n_sector} หุ้น)</div>
-    <div style="display:grid; grid-template-columns: repeat(6, 1fr); gap:6px; text-align:center; margin-bottom:16px;">
-    {''.join([dim_pct_card(l, p, c) for l, p, c in dims_sector])}
-    </div>
+    {sector_section}
     </div>
     <div style="border-top:1px dashed #334155; margin-bottom:12px;"></div>
     <div>
