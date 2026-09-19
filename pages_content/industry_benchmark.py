@@ -82,31 +82,53 @@ def render(ctx):
     </div>""", unsafe_allow_html=True)
         
     with r1_c3:
-        def pct_rank(col, ascending=False):
-            r = ctx.scores_df[col].rank(ascending=ascending, pct=True)
-            v = r[ctx.scores_df['ticker'] == ctx.selected_ticker].values[0] if ctx.selected_ticker in ctx.scores_df['ticker'].values else 0.5
-            return round((1 - v) * 100) if not ascending else round(v * 100)
+       def calc_pct(df, col):
+            s = df[col].rank(pct=True)
+            match = df['ticker'] == ctx.selected_ticker
+            if not match.any():
+                return 50
+            return int(round(100 - s[match].values[0] * 100))
 
-        percentile_dims = [
-            ("Profitability", int(round(100 - ctx.scores_df['health_score'].rank(pct=True)[ctx.scores_df['ticker'] == ctx.selected_ticker].values[0] * 100)), "#10B981"),
-            ("Growth", int(round(100 - ctx.scores_df['revenue_growth_yoy'].rank(pct=True)[ctx.scores_df['ticker'] == ctx.selected_ticker].values[0] * 100)) if ctx.stock_info.get('revenue_growth_yoy') is not None else 50, "#3B82F6"),
-            ("Valuation", int(round(100 - ctx.scores_df['valuation_score'].rank(pct=True)[ctx.scores_df['ticker'] == ctx.selected_ticker].values[0] * 100)), "#F59E0B"),
-            ("Entry Timing", int(round(100 - ctx.scores_df['timing_score'].rank(pct=True)[ctx.scores_df['ticker'] == ctx.selected_ticker].values[0] * 100)), "#10B981"),
-            ("Risk (safer)", int(round(100 - ctx.scores_df['risk_score'].rank(pct=True)[ctx.scores_df['ticker'] == ctx.selected_ticker].values[0] * 100)), "#F59E0B"),
-            ("AI Prediction", int(round(100 - ctx.scores_df['ai_score'].rank(pct=True)[ctx.scores_df['ticker'] == ctx.selected_ticker].values[0] * 100)), "#A855F7"),
+        dims_cols = [
+            ("Profitability", 'health_score', "#10B981"),
+            ("Growth", 'revenue_growth_yoy', "#3B82F6"),
+            ("Valuation", 'valuation_score', "#F59E0B"),
+            ("Entry Timing", 'timing_score', "#10B981"),
+            ("Risk (safer)", 'risk_score', "#F59E0B"),
+            ("AI Prediction", 'ai_score', "#A855F7"),
         ]
+
+        def build_dims(df):
+            result = []
+            for label, col, color in dims_cols:
+                if col == 'revenue_growth_yoy' and ctx.stock_info.get('revenue_growth_yoy') is None:
+                    pct = 50
+                else:
+                    pct = calc_pct(df, col)
+                result.append((label, pct, color))
+            return result
+
+        dims_sector = build_dims(ctx.sector_peers)
+        dims_market = build_dims(ctx.scores_df)
 
         def dim_pct_card(label, pct, color):
             tier = "Excellent" if pct <= 20 else ("Good" if pct <= 45 else ("Fair" if pct <= 70 else "Weak"))
             return f"""<div style="background:#0F172A; padding:6px 2px; border-radius:6px; border:1px solid #1E293B;">
-    <div style="color:#94A3B8; font-size:13px;">{label}</div><div style="color:{color}; font-size:15px; font-weight:bold; margin:2px 0;">Top {max(pct,1)}%</div>
-    <div style="color:{color}; font-size:12.5px;">{tier}</div></div>"""
+    <div style="color:#94A3B8; font-size:12px;">{label}</div><div style="color:{color}; font-size:15px; font-weight:bold; margin:2px 0;">Top {max(pct,1)}%</div>
+    <div style="color:{color}; font-size:12px;">{tier}</div></div>"""
 
-        st.markdown(f"""<div style="background-color:#151E2F; border:1px solid #1E293B; border-radius:8px; padding:14px; height:185px;">
-    <div style="font-size:14.5px; color:#94A3B8; font-weight:bold; margin-bottom:8px;">DIMENSION PERCENTILE RANK (vs. {n_all} หุ้นที่ติดตาม)</div>
+        st.markdown(f"""<div style="background-color:#151E2F; border:1px solid #1E293B; border-radius:8px; padding:14px;">
+    <div style="font-size:14.5px; color:#94A3B8; font-weight:bold; margin-bottom:10px;">DIMENSION PERCENTILE RANK</div>
+    <div style="font-size:12.5px; color:#CBD5E1; margin-bottom:6px;">เปรียบเทียบกับกลุ่มอุตสาหกรรม {ctx.stock_info.get('sector','-')} ({n_sector} หุ้น)</div>
+    <div style="display:grid; grid-template-columns: repeat(6, 1fr); gap:6px; text-align:center; margin-bottom:16px;">
+    {''.join([dim_pct_card(l, p, c) for l, p, c in dims_sector])}
+    </div>
+    <div style="border-top:1px dashed #334155; margin-bottom:12px;"></div>
+    <div style="font-size:12.5px; color:#CBD5E1; margin-bottom:6px;">เปรียบเทียบกับหุ้นทั้ง {n_all} ตัว</div>
     <div style="display:grid; grid-template-columns: repeat(6, 1fr); gap:6px; text-align:center;">
-    {''.join([dim_pct_card(l, p, c) for l, p, c in percentile_dims])}
-    </div></div>""", unsafe_allow_html=True)
+    {''.join([dim_pct_card(l, p, c) for l, p, c in dims_market])}
+    </div>
+    </div>""", unsafe_allow_html=True)
 
     st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
     r2_c1, r2_c2, r2_c3 = st.columns([2.0, 1.0, 1.1])
