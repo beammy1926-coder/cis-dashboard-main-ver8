@@ -87,7 +87,7 @@ def render(ctx):
     </div>
     </div>""", unsafe_allow_html=True)
         
-        with r1_c3:
+    with r1_c3:
         def calc_pct(df, col):
             s = df[col].rank(pct=True)
             match = df['ticker'] == ctx.selected_ticker
