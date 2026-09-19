@@ -30,9 +30,6 @@ def render(ctx):
     sector_rank = int(ctx.stock_info.get('sector_rank', 1))
     overall_rank = int(ctx.stock_info.get('overall_rank', 1))
     n_all = len(ctx.scores_df)
-    
-    # ป้องกันเคส sector มีสมาชิก < 2 ตัว (เช่น JMART) — เพิ่มเทียบกับทั้งตลาดเสริม ไม่ลบของเดิม
-    single_member_sector = n_sector < 2
     pct_in_sector = round((sector_rank / max(n_sector, 1)) * 100)
 
     st.markdown(f"""
@@ -51,34 +48,24 @@ def render(ctx):
     r1_c1, r1_c2, r1_c3 = st.columns([1.1, 0.8, 2.1])
 
     with r1_c1:
-        if single_member_sector:
-            position_label = "TOP OVERALL" if overall_rank == 1 else ("STRONG COMPETITOR" if overall_rank <= max(2, n_all // 2) else "LAGGING PEER")
-            pos_stars = 5 if overall_rank == 1 else (4 if overall_rank <= max(2, n_all // 2) else 2)
-            extra_note = f'<br><span style="color:#F59E0B;">⚠️ กลุ่มนี้มีแค่ {ctx.selected_ticker} ตัวเดียวที่ติดตาม — เทียบกับทั้ง {n_all} หุ้นแทนด้วย: อันดับ {overall_rank}/{n_all}</span>'
-        else:
-            position_label = "INDUSTRY LEADER" if sector_rank == 1 else ("STRONG COMPETITOR" if sector_rank <= max(2, n_sector // 2) else "LAGGING PEER")
-            pos_stars = 5 if sector_rank == 1 else (4 if sector_rank <= max(2, n_sector // 2) else 2)
-            extra_note = ""
+        position_label = "INDUSTRY LEADER" if sector_rank == 1 else ("STRONG COMPETITOR" if sector_rank <= max(2, n_sector // 2) else "LAGGING PEER")
+        pos_stars = 5 if sector_rank == 1 else (4 if sector_rank <= max(2, n_sector // 2) else 2)
         st.markdown(f"""<div style="background-color:#151E2F; border:1px solid #1E293B; border-radius:8px; padding:14px; height:185px;">
     <div style="font-size:14.5px; color:#94A3B8; font-weight:bold; margin-bottom:8px;">STRATEGIC INVESTMENT POSITION</div>
     <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
     <div style="background:rgba(168,85,247,0.15); border:1px solid #A855F7; border-radius:50%; width:50px; height:50px; display:flex; align-items:center; justify-content:center; font-size:21px;">🏆</div>
     <div><div style="color:#C084FC; font-size:17.5px; font-weight:bold;">{position_label}</div><div style="color:#A855F7; font-size:15px; letter-spacing:2px;">{'★'*pos_stars}{'☆'*(5-pos_stars)}</div></div>
     <div style="margin-left:auto;"><span style="background-color:rgba(168,85,247,0.2); color:#C084FC; font-size:13.5px; font-weight:bold; padding:2px 6px; border-radius:4px;">Rank {sector_rank}/{n_sector}</span></div>
-    </div><p style="color:#94A3B8; font-size:13.5px; line-height:1.4; margin:0;">อันดับที่ {sector_rank} จาก {n_sector} บริษัทในกลุ่ม {ctx.stock_info.get('sector','-')} จาก Overall Score = {safe(ctx.stock_info.get('overall_score')):.1f}/100{extra_note}</p>
+    </div><p style="color:#94A3B8; font-size:13.5px; line-height:1.4; margin:0;">อันดับที่ {sector_rank} จาก {n_sector} บริษัทในกลุ่ม {ctx.stock_info.get('sector','-')} จาก Overall Score = {safe(ctx.stock_info.get('overall_score')):.1f}/100</p>
     </div>""", unsafe_allow_html=True)
 
     with r1_c2:
-        if single_member_sector:
-            extra_rank_box = f'<div style="margin-top:8px; padding-top:8px; border-top:1px dashed #334155;"><div style="font-size:12px; color:#94A3B8;">เทียบทั้ง {n_all} หุ้น (กลุ่มมีตัวเดียว)</div><div style="font-size:18px; color:#38BDF8; font-weight:bold;">อันดับ {overall_rank}/{n_all}</div></div>'
-        else:
-            extra_rank_box = ""
         st.markdown(f"""<div style="background-color:#151E2F; border:1px solid #1E293B; border-radius:8px; padding:14px; height:185px; text-align:center;">
     <div style="font-size:14.5px; color:#94A3B8; font-weight:bold; margin-bottom:4px;">SECTOR RANKING</div>
     <div style="font-size:13.5px; color:#64748B;">{ctx.stock_info.get('sector','-')}</div>
     <div style="margin:4px 0;"><div style="font-size:13.5px; color:#F59E0B;">Rank</div>
     <div style="font-size:28px; color:#F8FAFC; font-weight:bold; line-height:1;">{sector_rank}</div><div style="font-size:12.5px; color:#64748B;">/ {n_sector} หุ้นในกลุ่ม</div></div>
-    <span style="background-color:rgba(245,158,11,0.15); color:#F59E0B; font-size:13.5px; font-weight:bold; padding:2px 8px; border-radius:8px;">Top {pct_in_sector}%</span>{extra_rank_box}
+    <span style="background-color:rgba(245,158,11,0.15); color:#F59E0B; font-size:13.5px; font-weight:bold; padding:2px 8px; border-radius:8px;">Top {pct_in_sector}%</span>
     </div>""", unsafe_allow_html=True)
         
     with r1_c3:
