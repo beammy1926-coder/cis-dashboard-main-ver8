@@ -126,15 +126,17 @@ def render(ctx):
     <td>{health_b}</td><td><span style="color:{val_c};">{val_b}</span></td><td>{timing_b}</td><td>{ai_b}</td>
     <td><span style="color:{risk_c};">{risk_b}</span></td><td style="color:#A855F7; letter-spacing:1px;">{'★'*star_n}{'☆'*(5-star_n)}</td></tr>"""
 
-        st.markdown(f"""<div style="background-color:#151E2F; border:1px solid #1E293B; border-radius:8px; padding:14px; height:350px;">
+            st.markdown(f"""<div style="background-color:#151E2F; border:1px solid #1E293B; border-radius:8px; padding:14px; height:350px;">
     <div style="font-size:14.5px; color:#94A3B8; font-weight:bold; margin-bottom:6px;">PEER COMPARISON — {ctx.stock_info.get('sector','-')} ({n_sector} หุ้น)</div>
-    <table style="width:100%; text-align:center; font-size:14px; color:#CBD5E1; border-collapse:collapse;">
+    <div style="overflow-x:auto;">
+    <table style="width:100%; min-width:560px; text-align:center; font-size:14px; color:#CBD5E1; border-collapse:collapse;">
     <tr style="border-bottom:1px solid #1E293B; color:#64748B; font-size:13px;"><th style="text-align:left; padding:5px 0;">Company</th><th>Health</th><th>Fair Value</th><th>Entry Timing</th><th>AI Prediction</th><th>Risk</th><th>Overall</th></tr>
     {rows_html}
     </table>
+    </div>
     <div style="font-size:12.5px; color:#64748B; margin-top:6px;">*จัดอันดับจาก Overall Score ที่คำนวณจริงจากข้อมูลใน cis_summary_scores</div>
     </div>""", unsafe_allow_html=True)
-
+            
     with r2_c2:
         cats = ['Health', 'Valuation', 'Timing', 'AI Pred.', 'Risk', 'Industry']
         stock_vals = [safe(ctx.stock_info.get('health_score')), safe(ctx.stock_info.get('valuation_score')), safe(ctx.stock_info.get('timing_score')),
