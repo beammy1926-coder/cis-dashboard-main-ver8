@@ -55,7 +55,7 @@ def render(ctx):
         else:
             position_label = "INDUSTRY LEADER" if sector_rank == 1 else ("STRONG COMPETITOR" if sector_rank <= max(2, n_sector // 2) else "LAGGING PEER")
             pos_stars = 5 if sector_rank == 1 else (4 if sector_rank <= max(2, n_sector // 2) else 2)
-        st.markdown(f"""<div style="background-color:#151E2F; border:1px solid #1E293B; border-radius:8px; padding:14px; height:185px;">
+        st.markdown(f"""<div style="background-color:#151E2F; border:1px solid #1E293B; border-radius:8px; padding:14px; height:225px; display:flex; flex-direction:column; justify-content:space-between;">
     <div style="font-size:14.5px; color:#94A3B8; font-weight:bold; margin-bottom:8px;">STRATEGIC INVESTMENT POSITION</div>
     <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
     <div style="background:rgba(168,85,247,0.15); border:1px solid #A855F7; border-radius:50%; width:50px; height:50px; display:flex; align-items:center; justify-content:center; font-size:21px;">🏆</div>
@@ -66,9 +66,9 @@ def render(ctx):
 
     with r1_c2:
         pct_overall = round((overall_rank / max(n_all, 1)) * 100)
-        st.markdown(f"""<div style="background-color:#151E2F; border:1px solid #1E293B; border-radius:8px; padding:14px; text-align:center;">
-    <div style="font-size:14.5px; color:#94A3B8; font-weight:bold; margin-bottom:10px;">RANKING</div>
-    <div style="border-bottom:1px solid #1E293B; padding-bottom:10px; margin-bottom:10px;">
+        st.markdown(f"""<div style="background-color:#151E2F; border:1px solid #1E293B; border-radius:8px; padding:14px; height:225px; text-align:center; display:flex; flex-direction:column; justify-content:space-between;">
+    <div style="font-size:14.5px; color:#94A3B8; font-weight:bold;">RANKING</div>
+    <div style="border-bottom:1px solid #1E293B; padding-bottom:8px;">
     <div style="font-size:12px; color:#64748B;">ในกลุ่ม</div>
     <div style="font-size:11px; color:#94A3B8; margin-bottom:2px;">{ctx.stock_info.get('sector','-')}</div>
     <div><span style="font-size:24px; color:#F8FAFC; font-weight:bold;">{sector_rank}</span> <span style="font-size:12px; color:#64748B;">/ {n_sector} หุ้น</span></div>
