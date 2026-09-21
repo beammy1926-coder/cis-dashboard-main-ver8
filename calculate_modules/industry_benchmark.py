@@ -28,6 +28,35 @@ compute_industry_rankings(df_res) รับ:
 """
 
 
+import json
+import numpy as np
+import pandas as pd
+
+BASE_WEIGHTS = {'health_score': 0.25, 'valuation_score': 0.25,
+                'timing_score': 0.15, 'ai_score': 0.10, 'risk_score': 0.15}
+INDUSTRY_WEIGHT = 0.10
+MIN_SECTOR_SIZE = 2
+NO_DATA_LABEL = "ข้อมูลไม่พอ"
+
+
+def sanitize_for_sqlite(df):          # ข้อ 1
+    df = df.copy()
+    for col in df.columns:
+        if df[col].map(lambda v: isinstance(v, (dict, list, tuple, set))).any():
+            df[col] = df[col].map(
+                lambda v: json.dumps(sorted(v) if isinstance(v, set) else v, ensure_ascii=False, default=str)
+                if isinstance(v, (dict, list, tuple, set)) else v)
+    return df
+
+
+def _weighted_mean(df, weights):      # ข้อ 2
+    vals = df[list(weights)].apply(pd.to_numeric, errors='coerce')
+    w = pd.Series(weights)
+    mask = vals.notna()
+    num = (vals.fillna(0) * w).sum(axis=1)
+    den = (mask * w).sum(axis=1)
+    return (num / den.where(den > 0)).round(1)
+    
 def compute_industry_rankings(df_res):
     """รับ DataFrame ที่มีคะแนนทุกโมดูลของทุกหุ้นแล้ว (แถวละ 1 หุ้น) คำนวณ Industry Benchmark
     + Overall Score + Recommendation แล้วคืน DataFrame เดิมที่เพิ่มคอลัมน์เหล่านี้เข้าไป"""
