@@ -62,21 +62,30 @@ def compute_industry_rankings(df_res):
     + Overall Score + Recommendation แล้วคืน DataFrame เดิมที่เพิ่มคอลัมน์เหล่านี้เข้าไป"""
 
     # Percentile ของ health_score ภายในกลุ่ม sector เดียวกัน (0-100, ยิ่งสูงยิ่งดีกว่ากลุ่ม)
-    df_res['industry_score'] = df_res.groupby('sector')['health_score'].rank(pct=True).apply(lambda x: round(x * 100, 1))
+        df_res = df_res.copy()
+    for c in BASE_WEIGHTS:
+        df_res[c] = pd.to_numeric(df_res[c], errors='coerce')
+    sector_key = df_res['sector'].fillna('N/A')
+
+    df_res['base_score'] = _weighted_mean(df_res, BASE_WEIGHTS)                    # ข้อ 4
+    valid = df_res['base_score'].notna()
+    df_res['sector_size'] = valid.groupby(sector_key).transform('sum').astype(int)
+    df_res['sector_comparable'] = df_res['sector_size'] >= MIN_SECTOR_SIZE         # ข้อ 3
+
+    pct_sector = df_res['base_score'].groupby(sector_key).rank(pct=True) * 100
+    pct_universe = df_res['base_score'].rank(pct=True) * 100
+    df_res['industry_score'] = pd.Series(
+        np.where(df_res['sector_comparable'], pct_sector, pct_universe), index=df_res.index).round(1)
+    df_res['industry_score_basis'] = np.where(df_res['sector_comparable'], 'sector', 'universe')
 
     # คะแนนรวมถ่วงน้ำหนัก — น้ำหนักนี้เป็นค่าที่กำหนดเอง ปรับได้ตามที่ทีมเห็นสมควร
-    df_res['overall_score'] = (
-        (df_res['health_score'] * 0.25) +
-        (df_res['valuation_score'] * 0.25) +
-        (df_res['timing_score'] * 0.15) +
-        (df_res['ai_score'] * 0.10) +
-        (df_res['risk_score'] * 0.15) +
-        (df_res['industry_score'] * 0.10)
-    ).round(1)
+    df_res['overall_score'] = _weighted_mean(df_res, {**BASE_WEIGHTS, 'industry_score': INDUSTRY_WEIGHT})
 
-    df_res['sector_rank'] = df_res.groupby('sector')['overall_score'].rank(ascending=False, method='min').astype(int)
-    df_res['overall_rank'] = df_res['overall_score'].rank(ascending=False, method='min').astype(int)
+    df_res['sector_rank'] = df_res.groupby(sector_key)['overall_score'].rank(ascending=False, method='min').astype('Int64')
+    df_res['overall_rank'] = df_res['overall_score'].rank(ascending=False, method='min').astype('Int64')
 
+    if pd.isna(score):
+        return NO_DATA_LABEL
     def get_rec(score):
         if score >= 75:
             return "STRONG BUY"
