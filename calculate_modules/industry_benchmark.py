@@ -64,7 +64,7 @@ def compute_industry_rankings(df_res):
     # Percentile ของ health_score ภายในกลุ่ม sector เดียวกัน (0-100, ยิ่งสูงยิ่งดีกว่ากลุ่ม)
     df_res = df_res.copy()
     for c in BASE_WEIGHTS:
-    df_res[c] = pd.to_numeric(df_res[c], errors='coerce')
+        df_res[c] = pd.to_numeric(df_res[c], errors='coerce')
     sector_key = df_res['sector'].fillna('N/A')
 
     df_res['base_score'] = _weighted_mean(df_res, BASE_WEIGHTS)                    # ข้อ 4
