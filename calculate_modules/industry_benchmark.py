@@ -62,9 +62,9 @@ def compute_industry_rankings(df_res):
     + Overall Score + Recommendation แล้วคืน DataFrame เดิมที่เพิ่มคอลัมน์เหล่านี้เข้าไป"""
 
     # Percentile ของ health_score ภายในกลุ่ม sector เดียวกัน (0-100, ยิ่งสูงยิ่งดีกว่ากลุ่ม)
-        df_res = df_res.copy()
+    df_res = df_res.copy()
     for c in BASE_WEIGHTS:
-        df_res[c] = pd.to_numeric(df_res[c], errors='coerce')
+    df_res[c] = pd.to_numeric(df_res[c], errors='coerce')
     sector_key = df_res['sector'].fillna('N/A')
 
     df_res['base_score'] = _weighted_mean(df_res, BASE_WEIGHTS)                    # ข้อ 4
@@ -84,9 +84,9 @@ def compute_industry_rankings(df_res):
     df_res['sector_rank'] = df_res.groupby(sector_key)['overall_score'].rank(ascending=False, method='min').astype('Int64')
     df_res['overall_rank'] = df_res['overall_score'].rank(ascending=False, method='min').astype('Int64')
 
-    if pd.isna(score):
-        return NO_DATA_LABEL
     def get_rec(score):
+        if pd.isna(score):
+            return NO_DATA_LABEL
         if score >= 75:
             return "STRONG BUY"
         if score >= 65:
