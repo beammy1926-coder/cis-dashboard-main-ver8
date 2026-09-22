@@ -276,7 +276,7 @@ def render(ctx):
     with r3_c2:
         compare_desc = f"เทียบกับทั้ง {n_all} หุ้นที่ติดตาม (กลุ่มมีตัวเดียว)" if single_member_sector else "เทียบกับบริษัทในกลุ่มเดียวกัน"
         avg_label = "Overall avg" if single_member_sector else "Sector avg"
-        st.markdown(f"""<div style="background-color:#151E2F; border:1px solid #1E293B; border-radius:8px; padding:14px; height:275px;">
+
         def _metric_row(label, col):
             v = ctx.stock_info.get(col)
             avg = compare_df[col].mean()
@@ -294,16 +294,14 @@ def render(ctx):
             rank_sentence = f"อยู่อันดับที่ <b>{overall_rank}</b> จาก {n_all} หุ้นที่ติดตาม (กลุ่ม {ctx.stock_info.get('sector','-')} มีหุ้นตัวเดียว)"
         else:
             rank_sentence = f"อยู่อันดับที่ <b>{sector_rank}</b> จาก {n_sector} บริษัทในกลุ่ม {ctx.stock_info.get('sector','-')}"
+
+        st.markdown(f"""<div style="background-color:#151E2F; border:1px solid #1E293B; border-radius:8px; padding:14px; height:275px;">
     <div style="font-size:14.5px; color:#94A3B8; font-weight:bold; margin-bottom:6px;">EXPLAINABLE AI SUMMARY</div>
     <p style="color:#CBD5E1; font-size:14px; line-height:1.4; margin:0 0 8px 0;">
-    <b>{ctx.selected_ticker}</b> อยู่อันดับที่ <b>{sector_rank}</b> จาก {n_sector} บริษัทในกลุ่ม {ctx.stock_info.get('sector','-')} (Overall Score {safe(ctx.stock_info.get('overall_score')):.1f}/100) {compare_desc}:</p>
     <b>{ctx.selected_ticker}</b> {rank_sentence} (Overall Score {safe(ctx.stock_info.get('overall_score')):.1f}/100) {compare_desc}:</p>
-    <div><span style="color:#10B981;">✔</span> Health Score: {safe(ctx.stock_info.get('health_score')):.1f} ({avg_label} {compare_df['health_score'].mean():.1f})</div>
-    <div><span style="color:#10B981;">✔</span> Valuation Score: {safe(ctx.stock_info.get('valuation_score')):.1f} ({avg_label} {compare_df['valuation_score'].mean():.1f})</div>
-    <div><span style="color:#10B981;">✔</span> AI Prediction Score: {safe(ctx.stock_info.get('ai_score')):.1f} ({avg_label} {compare_df['ai_score'].mean():.1f})</div>
-    <div><span style="color:#10B981;">✔</span> Risk Score: {safe(ctx.stock_info.get('risk_score')):.1f} ({avg_label} {compare_df['risk_score'].mean():.1f})</div>
+    <div style="color:#CBD5E1; font-size:13.5px; line-height:1.5;">
+    {metric_rows}
     </div></div>""", unsafe_allow_html=True)
-
     with r3_c3:
         rec = ctx.stock_info.get('recommendation', 'ACCUMULATE')
         rec_color2 = {"STRONG BUY": "#10B981", "BUY": "#10B981", "ACCUMULATE": "#84CC16", "REDUCE / SELL": "#EF4444", "ข้อมูลไม่พอ": "#64748B"}.get(rec, "#F59E0B")
