@@ -260,6 +260,11 @@ def render(ctx):
             quad_icon, quad_label, quad_desc, quad_color = "💎", "Hidden Gem", "ธุรกิจพื้นฐานดี แต่ยังไม่สะท้อนในคะแนนรวม", "#34D399"
         else:
             quad_icon, quad_label, quad_desc, quad_color = "⚠️", "Value Trap", "ทั้งพื้นฐานธุรกิจและความน่าลงทุนยังอยู่ในเกณฑ์ต่ำ", "#F87171"
+        
+        st.markdown(f"""<div style="font-size:12.5px; color:#94A3B8; line-height:1.5; margin-top:6px; padding:8px 10px; background:rgba(255,255,255,0.03); border-radius:6px;">
+    <b>{ctx.selected_ticker}</b> อยู่ในโซน <span style="color:{quad_color}; font-weight:bold;">{quad_icon} {quad_label}</span> — {quad_desc}<br>
+    <span style="color:#64748B;">แกน X = คุณภาพธุรกิจ (Health Score), แกน Y = ความน่าลงทุนโดยรวม (Overall Score) | เส้นแบ่งที่ 50/100</span>
+    </div>""", unsafe_allow_html=True)
 
     st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
     r3_c1, r3_c2 = st.columns([1.3, 1.7])
